@@ -5,7 +5,7 @@ from torch import Tensor, nn
 from typing import Optional
 
 
-class Classifer(nn.Module, ABC):
+class Classifier(nn.Module, ABC):
     '''
     Wraps a model which produces raw class scores, and provides methods to compute
         class label and probabilities
@@ -43,9 +43,9 @@ class Classifer(nn.Module, ABC):
         pass
     
 
-class MultiClassClassifier(Classifier):
-    def __init__(self, threshold: float = 0.5):
-        super().__init__()
+class MultiLabelClassifier(Classifier):
+    def __init__(self, model, threshold: float = 0.5):
+        super().__init__(model)
         self.threshold = threshold
         
     def _classify(self, y_proba: Tensor):

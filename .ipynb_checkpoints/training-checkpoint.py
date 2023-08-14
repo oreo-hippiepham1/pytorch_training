@@ -10,7 +10,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from train_results import FitResult, BatchResult, EpochResult
-from classifer import Classifer
+from classifier import Classifier
 
 class Trainer(abc.ABC):
     '''
@@ -169,7 +169,7 @@ class ViTTrainer(Trainer):
         device: Optional[torch.device] = None
     ):
         super().__init__(model, device)
-        self.optimizer = optimizer,
+        self.optimizer = optimizer
         self.loss_fn = loss_fn
         
     
@@ -238,7 +238,3 @@ class ViTTrainer(Trainer):
         return BatchResult(batch_loss, num_correct)
         
         
-
-
-
-print("TESTING")
