@@ -10,6 +10,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from train_results import FitResult, BatchResult, EpochResult
+from classifer import Classifer
 
 class Trainer(abc.ABC):
     '''
@@ -55,7 +56,7 @@ class Trainer(abc.ABC):
             self._print(f'--- EPOCH {epoch+1}/{num_epochs} ---', verbose)
             
             # TRAIN
-            train_result = self.train_epoch(dl_train, **kw) # EpochResult obj: losses: List[float], accuracy: float        http://localhost:8889/lab?token=25246ee22d2fc35d09171fcd46973e92523336543092466b
+            train_result = self.train_epoch(dl_train, **kw) # EpochResult obj: losses: List[float], accuracy: float        
 
             train_loss += [l.item() for l in train_result.losses]
             train_acc.append(train_result.accuracy)
@@ -162,7 +163,7 @@ class ViTTrainer(Trainer):
     '''
     def __init__(
         self,
-        model: nn.Module,
+        model: Classifier,
         loss_fn: nn.Module,
         optimizer: Optimizer,
         device: Optional[torch.device] = None
@@ -177,7 +178,7 @@ class ViTTrainer(Trainer):
         if self.device:
             X, y = X.to(self.device), y.to(self.device)
             
-        self.model: nn.Module
+        self.model: Classifier
         batch_loss: float
         num_correct: int
         
@@ -192,7 +193,18 @@ class ViTTrainer(Trainer):
         batch_loss.backward()
         self.optimizer.step()
         
-        num_correct = 0 # to be modified
+        # Calculate subset accuracy
+        y_pred = self.model.classify_scores(y_scores)
+        
+        y_pred = y_pred.cpu().numpy()
+        y = y.cpu().numpy()
+
+        #num_samples = y.shape[0]
+
+        # Compare all elements of y_pred and y
+        all_match = (y_pred == y).all(axis=1)
+        num_correct = all_match.sum()
+        #accuracy = num_correct / num_samples
         
         return BatchResult(batch_loss, num_correct)
     
@@ -201,22 +213,31 @@ class ViTTrainer(Trainer):
         if self.device:
             X, y = X.to(self.device), y.to(self.device)
             
-        self.model: nn.Module
+        self.model: Classifier
         batch_loss: float
-        accuracy: float
+        num_correct: float
         
         with torch.no_grad():
             y_scores = self.model(X)
             
             # loss
             batch_loss = self.loss_fn(y_scores, y)
-            
-            num_correct = 0 # to be modified
-        
-        return BatchResult(batch_loss, accuracy)
-        
-        
+                        
+            y_pred = self.model.classify_scores(y_scores)
+            y_pred = y_pred.cpu().numpy()
+            y = y.cpu().numpy()
 
+            #num_samples = y.shape[0]
+
+            # Compare all elements of y_pred and y
+            all_match = (y_pred == y).all(axis=1)
+
+            num_correct = all_match.sum()
+            #accuracy = num_correct / num_samples # subset accuracy
+        
+        return BatchResult(batch_loss, num_correct)
+        
+        
 
 
 
