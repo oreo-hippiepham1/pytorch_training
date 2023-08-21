@@ -68,7 +68,7 @@ class Trainer(abc.ABC):
             train_acc.append(train_result.accuracy)
             
             # adds Tensorboard logging
-            self.writer.add_scalar('Train Loss', np.mean(train_result.losses), epoch) 
+            self.writer.add_scalar('Train Loss', np.mean([l.item() for l in train_result.losses]), epoch) 
             self.writer.add_scalar('Train Accuracy', train_result.accuracy, epoch)
             
             #TEST
@@ -77,7 +77,7 @@ class Trainer(abc.ABC):
             test_acc.append(test_result.accuracy)
             
             # adds Ten
-            self.writer.add_scalar('Test Loss', np.mean(test_result.losses), epoch)
+            self.writer.add_scalar('Test Loss', np.mean([l.item()for l in train_result.losses]), epoch)
             self.writer.add_scalar('Test Accuracy', test_result.accuracy, epoch)
             
             # Closing tensorboard writer
