@@ -194,9 +194,9 @@ class Trainer(abc.ABC):
         return EpochResult(losses=losses, accuracy=accuracy)
 
     
-class ViTTrainer(Trainer):
+class MultiLabelTrainer(Trainer):
     '''
-    Trainer for the ViT Model, for multi-label classification
+    Trainer for a classification model, for multi-label classification
     '''
     def __init__(
         self,
